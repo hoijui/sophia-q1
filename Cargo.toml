@@ -1,0 +1,8 @@
+[package]
+name = "sophia-q1"
+version = "0.1.0"
+authors = ["hoijui <hoijui.quaero@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+sophia = "0.6.2"
