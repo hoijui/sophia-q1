@@ -6,7 +6,7 @@ use std::error::Error;
 use sophia::graph::{inmem::FastGraph, *};
 use sophia::parser::turtle;
 use sophia::term::TermKind;
-use sophia::term::{BoxTerm, CopiableTerm, TTerm};
+use sophia::term::{RcTerm, TTerm};
 use sophia::triple::stream::TripleSource;
 use sophia::triple::Triple;
 
@@ -26,20 +26,16 @@ fn render_graph(graph: &FastGraph) -> Result<(), Box<dyn Error>> {
         // Therefore, we must make a self-contained copy of the term.
         // By self-contained, I mean a term that we own (so that we can move it into `indivs`)
         // and that owns its own underlying data.
-        // The simplest such type of term is BoxTerm.
-        //
-        // The `copied()` method of terms (defined in the trait `CopiableTerm`)
-        // is generic over its return type, much like `into()`.
+        // Since FastGraph uses RcTerms, and those are clonable,
+        // we achieve that by simply cloning the terms.
 
-        let subj: BoxTerm = triple.s().copied();
-        indivs.insert(subj);
+        indivs.insert(triple.s().clone());
 
         // Let's do the same for predicate and object.
 
-        let pred: BoxTerm = triple.p().copied();
-        preds.insert(pred);
+        preds.insert(triple.p().clone());
 
-        let obj: BoxTerm = triple.o().copied();
+        let obj: RcTerm = triple.o().clone();
         match obj.kind() {
             TermKind::Iri => {
                 indivs.insert(obj);
